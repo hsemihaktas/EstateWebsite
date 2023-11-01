@@ -25,9 +25,9 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 // Resim yükleme endpoint'i
-app.post('/yukle-resim', upload.single('resim'), (req, res) => {
+app.post('/yukle-resim', upload.array('resimler', 10), (req, res) => {
   const { baslik, aciklama } = req.body;
-  const resimBlob = req.file.buffer; // Resmi buffer olarak al
+  const resimBlobs = req.files.map(file => file.buffer); // Tüm resimleri buffer olarak al
 
   const insertIlanSql = 'INSERT INTO ilanlar (baslik, aciklama) VALUES (?, ?)';
   db.query(insertIlanSql, [baslik, aciklama], (err, result) => {
@@ -37,14 +37,26 @@ app.post('/yukle-resim', upload.single('resim'), (req, res) => {
     } else {
       const ilanId = result.insertId;
       const insertResimSql = 'INSERT INTO resimler (ilan_id, resim_blob) VALUES (?, ?)';
-      db.query(insertResimSql, [ilanId, resimBlob], (err) => {
-        if (err) {
-          console.error(err);
-          res.status(500).json({ error: 'Resim eklenirken hata oluştu.' });
-        } else {
-          res.json({ success: 'İlan ve resim başarıyla eklendi.' });
-        }
+      const insertions = resimBlobs.map(resimBlob => {
+        return new Promise((resolve, reject) => {
+          db.query(insertResimSql, [ilanId, resimBlob], (err) => {
+            if (err) {
+              console.error(err);
+              reject(err);
+            } else {
+              resolve();
+            }
+          });
+        });
       });
+
+      Promise.all(insertions)
+        .then(() => {
+          res.json({ success: 'İlan ve resimler başarıyla eklendi.' });
+        })
+        .catch((error) => {
+          res.status(500).json({ error: 'Resimler eklenirken hata oluştu.' });
+        });
     }
   });
 });
@@ -57,6 +69,20 @@ app.get('/ilanlar', (req, res) => {
       res.status(500).json({ error: 'İlanlar alınırken hata oluştu.' });
     } else {
       res.json(results);
+    }
+  });
+});
+
+app.get('/ilan-resim/:ilanId', (req, res) => {
+  const ilanId = req.params.ilanId;
+  const selectResimSql = 'SELECT resim_blob FROM resimler WHERE ilan_id = ?';
+  db.query(selectResimSql, [ilanId], (err, results) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Resim alınırken hata oluştu.' });
+    } else {
+      res.contentType('image/jpeg'); // Resim içeriği olarak gönder
+      res.end(results[0].resim_blob, 'binary');
     }
   });
 });
@@ -76,20 +102,43 @@ app.get('/ilanlar/:ilanId', (req, res) => {
     }
   });
 });
-
-app.get('/ilan-resim/:ilanId', (req, res) => {
+app.get('/resimler/:ilanId', (req, res) => {
   const ilanId = req.params.ilanId;
-  const selectResimSql = 'SELECT resim_blob FROM resimler WHERE ilan_id = ?';
-  db.query(selectResimSql, [ilanId], (err, results) => {
+  const selectResimIdSql = 'SELECT id FROM resimler WHERE ilan_id = ?';
+  
+  db.query(selectResimIdSql, [ilanId], (err, results) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Resim idleri alınırken hata oluştu.' });
+    } else {
+      const resimIdler = results.map(result => result.id);
+      res.json(resimIdler);
+    }
+  });
+});
+app.get('/ilan-resim/:ilanId/:resimId', (req, res) => {
+  const ilanId = req.params.ilanId;
+  const resimId = req.params.resimId;
+  const selectResimSql = 'SELECT resim_blob FROM resimler WHERE ilan_id = ? AND id = ?';
+  
+  db.query(selectResimSql, [ilanId, resimId], (err, results) => {
     if (err) {
       console.error(err);
       res.status(500).json({ error: 'Resim alınırken hata oluştu.' });
     } else {
-      res.contentType('image/jpeg'); // Resim içeriği olarak gönder
-      res.end(results[0].resim_blob, 'binary');
+      if (results.length > 0) {
+        res.contentType('image/jpeg'); // Resim içeriği olarak gönder
+        res.end(results[0].resim_blob, 'binary');
+      } else {
+        res.status(404).json({ error: 'Resim bulunamadı.' });
+      }
     }
   });
 });
+
+
+
+
 
 app.listen(port, () => {
   console.log(`Sunucu ${port} portunda çalışıyor`);

@@ -4,7 +4,7 @@ import axios from 'axios';
 function IlanEkle() {
   const [baslik, setBaslik] = useState('');
   const [aciklama, setAciklama] = useState('');
-  const [resim, setResim] = useState(null);
+  const [resimler, setResimler] = useState([]); // Resimleri bir dizi olarak saklayın
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -12,7 +12,11 @@ function IlanEkle() {
     const formData = new FormData();
     formData.append('baslik', baslik);
     formData.append('aciklama', aciklama);
-    formData.append('resim', resim);
+    
+    // Tüm resimleri formData'ya ekleyin
+    for (let i = 0; i < resimler.length; i++) {
+      formData.append('resimler', resimler[i]);
+    }
 
     axios.post('http://localhost:3001/yukle-resim', formData)
       .then((response) => {
@@ -37,8 +41,9 @@ function IlanEkle() {
           <textarea id="aciklama" value={aciklama} onChange={(e) => setAciklama(e.target.value)} />
         </div>
         <div>
-          <label htmlFor="resim">Resim:</label>
-          <input type="file" id="resim" accept="image/*" onChange={(e) => setResim(e.target.files[0])} />
+          <label htmlFor="resim">Resimler:</label>
+          <input type="file" id="resim" accept="image/*" multiple onChange={(e) => setResimler(e.target.files)} />
+          {/* multiple özelliği ekleyin */}
         </div>
         <button type="submit">Ekle</button>
       </form>
