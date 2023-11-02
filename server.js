@@ -26,11 +26,11 @@ const upload = multer({ storage });
 
 // Resim yükleme endpoint'i
 app.post('/yukle-resim', upload.array('resimler', 10), (req, res) => {
-  const { baslik, aciklama } = req.body;
+  const { baslik, aciklama , fiyat} = req.body;
   const resimBlobs = req.files.map(file => file.buffer); // Tüm resimleri buffer olarak al
 
-  const insertIlanSql = 'INSERT INTO ilanlar (baslik, aciklama) VALUES (?, ?)';
-  db.query(insertIlanSql, [baslik, aciklama], (err, result) => {
+  const insertIlanSql = 'INSERT INTO ilanlar (baslik, aciklama , fiyat ) VALUES (?, ?, ?)';
+  db.query(insertIlanSql, [baslik, aciklama , fiyat], (err, result) => {
     if (err) {
       console.error(err);
       res.status(500).json({ error: 'İlan eklenirken hata oluştu.' });
@@ -62,7 +62,15 @@ app.post('/yukle-resim', upload.array('resimler', 10), (req, res) => {
 });
 
 app.get('/ilanlar', (req, res) => {
-  const selectIlanlarSql = 'SELECT * FROM ilanlar';
+  const sıralama = req.query.siralama  || 'varsayilan'; // Varsayılan sıralama türü
+
+  // SQL sorgusu oluşturun
+  let selectIlanlarSql = 'SELECT * FROM ilanlar';
+  if (sıralama === 'fiyatArtan') {
+    selectIlanlarSql += ' ORDER BY fiyat ASC';
+  } else if (sıralama === 'fiyatAzalan') {
+    selectIlanlarSql += ' ORDER BY fiyat DESC';
+  }
   db.query(selectIlanlarSql, (err, results) => {
     if (err) {
       console.error(err);

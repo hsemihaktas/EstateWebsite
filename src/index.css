@@ -1,3 +1,21 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.slide {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.slide div img {
+  max-height: 500px;
+  max-width: 500px;
+  object-fit: contain;
+}
+
+.thumbs{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

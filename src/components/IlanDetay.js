@@ -8,7 +8,6 @@ function IlanDetay() {
   const { ilanId } = useParams();
   const [ilan, setIlan] = useState(null);
   const [resimler, setResimler] = useState([]);
-  
 
   useEffect(() => {
     // ilanId'ye göre ilan verilerini alın
@@ -34,28 +33,24 @@ function IlanDetay() {
     return <div className="p-4">Yükleniyor...</div>;
   }
 
-  
-
   return (
     <div className="p-4">
-      <div className="bg-white rounded-lg shadow-md flex">
+      <div className="bg-white rounded-lg shadow-md flex flex-col lg:flex-row">
         {/* Carousel */}
-        <div className="w-1/2 h-500 w-500">
-          <Carousel showThumbs={true} showArrows={true} showIndicators={true} width={500} height={500}>
-            {resimler.map((resim) => (
-              <div key={resim.id}>
+        <div className="w-full md:w-1/2">
+          <Carousel showThumbs={true} showArrows={true} showIndicators={true} showStatus={false}>
+            {resimler.map((resim, index) => (
+              <div key={resim}>
                 <img
                   src={`http://localhost:3001/ilan-resim/${ilanId}/${resim}`}
                   alt={ilan.baslik}
-                  width={500}
-                  height={500}
                 />
               </div>
             ))}
           </Carousel>
         </div>
         {/* Bilgiler */}
-        <div className="w-1/2 p-4">
+        <div className="w-full md:w-1/2 p-4">
           <h1 className="text-2xl font-bold mb-4">{ilan.baslik}</h1>
           <p className="text-gray-700">{ilan.aciklama}</p>
         </div>
