@@ -3,18 +3,20 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import Navbar from './Navbar';
 
-function IlanDuzenle() {
+const IlanDuzenle = () => {
   const { ilanId } = useParams();
 
   const [ilan, setIlan] = useState({
     baslik: '',
     aciklama: '',
     fiyat: 0,
-    resimIdleri: [] // Resim id'lerini saklamak için bir dizi ekledik
+    resimIdleri: []
   });
 
+  const [yeniResimler, setYeniResimler] = useState([]);
+  const [silinecekResimler, setSilinecekResimler] = useState([]);
+
   useEffect(() => {
-    // ilanId'ye göre ilan verilerini alın
     axios.get(`http://localhost:3001/ilan-detay/${ilanId}`)
       .then((response) => {
         setIlan(response.data);
@@ -32,7 +34,36 @@ function IlanDuzenle() {
   const handleIlanGuncelle = () => {
     axios.put(`http://localhost:3001/ilanlar/${ilanId}`, ilan)
       .then(() => {
-        window.location.href = '/';
+        // Yeni resimlerin yüklenmesi
+        yeniResimler.forEach((resim) => {
+          const formData = new FormData();
+          formData.append('files', resim);
+          axios.post(`http://localhost:3001/ilan-resim-yukle/${ilanId}`, formData)
+            .then(() => {
+              // Yükleme başarılı olduğunda işlemleri burada yapabilirsiniz
+            })
+            .catch((error) => {
+              console.error('Resim yüklenirken hata oluştu:', error);
+            });
+        });
+
+        // Silinmesi gereken resimlerin silinmesi
+        if (silinecekResimler.length > 0) {
+          silinecekResimler.forEach((resimId) => {
+            axios.delete(`http://localhost:3001/ilan-resim/${ilanId}/${resimId}`)
+              .then(() => {
+                setIlan({ ...ilan, resimIdleri: ilan.resimIdleri.filter(id => id !== resimId) });
+              })
+              .catch((error) => {
+                console.error('Resim silinirken hata oluştu:', error);
+              });
+          });
+
+          // Silme işlemi tamamlandığında, silinecekResimler dizisini sıfırla
+          setSilinecekResimler([]);
+        }
+
+        window.location.href = `http://localhost:3000/ilanlar/${ilanId}`;
       })
       .catch((error) => {
         console.error('İlan güncellenirken hata oluştu:', error);
@@ -40,33 +71,17 @@ function IlanDuzenle() {
   };
 
   const handleResimSil = (resimId) => {
-    axios.delete(`http://localhost:3001/ilan-resim/${ilanId}/${resimId}`)
-      .then(() => {
-        setIlan({ ...ilan, resimIdleri: ilan.resimIdleri.filter(id => id !== resimId) });
-      })
-      .catch((error) => {
-        console.error('Resim silinirken hata oluştu:', error);
-      });
+    setSilinecekResimler([...silinecekResimler, resimId]);
+    setIlan({ ...ilan, resimIdleri: ilan.resimIdleri.filter(id => id !== resimId) });
   };
 
   const handleResimYukle = (e) => {
-    // Resim yükleme işlemi
-    const file = e.target.files[0];
-    const formData = new FormData();
-    formData.append('files', file);
-
-    axios.post(`http://localhost:3001/ilan-resim-yukle/${ilanId}`, formData)
-      .then((response) => {
-        // Yükleme başarılı olduğunda işlemleri burada yapabilirsiniz
-        window.location.reload();
-      })
-      .catch((error) => {
-        console.error('Resim yüklenirken hata oluştu:', error);
-      });
+    const resimler = e.target.files;
+    setYeniResimler([...yeniResimler, ...resimler]);
   };
 
   return (
-    <>
+    <div>
       <Navbar />
       <div className="p-4">
         <h1 className="text-2xl font-bold mb-4">İlan Düzenle</h1>
@@ -141,8 +156,8 @@ function IlanDuzenle() {
           </button>
         </div>
       </div>
-    </>
+    </div>
   );
-}
+};
 
 export default IlanDuzenle;
