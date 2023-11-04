@@ -21,10 +21,11 @@ function IlanEkle() {
       formData.append('resimler', resimler[i]);
     }
 
-    axios.post('http://localhost:3001/yukle-resim', formData)
+    axios.post('http://localhost:3001/ilan-ekle', formData)
       .then((response) => {
         console.log(response.data);
         // Başarılı bir şekilde eklenmişse, kullanıcıya bir mesaj gösterilebilir
+        window.location.href = '/';
       })
       .catch((error) => {
         console.error('İlan eklenirken hata oluştu:', error);

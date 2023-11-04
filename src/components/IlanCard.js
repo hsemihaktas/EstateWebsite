@@ -25,7 +25,6 @@ function IlanCard({ ilan }) {
       <div className="px-6 py-4">
         <div className="font-bold text-xl mb-2">{ilan.baslik}</div>
         <div className="font-bold text-xl mb-2">{ilan.fiyat}</div>
-        <p className="text-gray-700 text-base">{ilan.aciklama}</p>
         <Link to={`/ilanlar/${ilan.id}`} className="text-blue-600 hover:underline">Detaylar</Link>
       </div>
     </div>

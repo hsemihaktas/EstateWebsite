@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom'
 import IlanCard from './IlanCard';
+import Navbar from './Navbar';
 
 function IlanAnasayfa() {
   const [ilanlar, setIlanlar] = useState([]);
@@ -23,15 +23,7 @@ function IlanAnasayfa() {
 
   return (
     <div className="relative">
-      {/* Üst div */}
-      <div className="border-b p-4 flex justify-between items-center">
-        <h1 className="text-xl font-bold">İlanlar</h1>
-        <div className="p-4">
-        <Link to="/ilan-ekle" className="p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
-          İlan Ekle
-        </Link>
-      </div>
-      </div>
+      <Navbar />
 
       <div className="p-4 flex items-center">
         <select
@@ -42,6 +34,8 @@ function IlanAnasayfa() {
           <option value="varsayilan">Varsayılan Sıralama</option>
           <option value="fiyatArtan">Fiyata Göre Artan</option>
           <option value="fiyatAzalan">Fiyata Göre Azalan</option>
+          <option value="isimAZ">A-Z'ye Göre Sıralama</option>
+          <option value="isimZA">Z-A'ye Göre Sıralama</option>
         </select>
       </div>
 
