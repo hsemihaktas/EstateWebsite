@@ -23,7 +23,6 @@ function IlanEkle() {
 
     axios.post('http://localhost:3001/ilan-ekle', formData)
       .then((response) => {
-        console.log(response.data);
         // Başarılı bir şekilde eklenmişse, kullanıcıya bir mesaj gösterilebilir
         window.location.href = '/';
       })

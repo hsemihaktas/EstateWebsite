@@ -201,7 +201,7 @@ app.put('/ilanlar/:ilanId', (req, res) => {
   });
 });
 
-// İlan Düzenleme Sayfasında Resim silme endpoint'i
+// İlan Düzenleme Sayfasında Resim silme
 app.delete('/ilan-resim/:ilanId/:resimId', (req, res) => {
   const ilanId = req.params.ilanId;
   const resimId = req.params.resimId;
@@ -219,7 +219,7 @@ app.delete('/ilan-resim/:ilanId/:resimId', (req, res) => {
   });
 });
 
-// İlan Düzenlenleme Sayfasında Çoklu resim yükleme endpoint'i
+// İlan Düzenlenleme Sayfasında Çoklu resim yükleme 
 app.post('/ilan-resim-yukle/:ilanId', upload.array('files', 10), (req, res) => {
   const ilanId = req.params.ilanId;
   const resimBlobs = req.files.map(file => file.buffer); // Tüm resimleri buffer olarak al
