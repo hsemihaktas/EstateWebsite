@@ -24,7 +24,7 @@ function IlanCard({ ilan }) {
       {resimBase64 && <img src={resimBase64} alt={ilan.baslik} className="w-full h-48 object-cover" />}
       <div className="px-6 py-4">
         <div className="font-bold text-xl mb-2">{ilan.baslik}</div>
-        <div className="font-bold text-xl mb-2">{ilan.fiyat}</div>
+        <div className="font-bold text-xl mb-2">{ilan.fiyat} TL</div>
         <Link to={`/ilanlar/${ilan.id}`} className="text-blue-600 hover:underline">Detaylar</Link>
       </div>
     </div>
