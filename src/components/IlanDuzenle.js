@@ -33,13 +33,13 @@ const IlanDuzenle = () => {
   };
 
   const handleIlanGuncelle = () => {
-    axios.put(`http://localhost:3001/ilanlar/${ilanId}`, ilan)
+    axios.put(`http://localhost:3001/ilan-duzenle/${ilanId}`, ilan)
       .then(() => {
         // Yeni resimlerin yüklenmesi
         yeniResimler.forEach((resim) => {
           const formData = new FormData();
           formData.append('files', resim);
-          axios.post(`http://localhost:3001/ilan-resim-yukle/${ilanId}`, formData)
+          axios.post(`http://localhost:3001/ilan-duzenle-resim-yukle/${ilanId}`, formData)
             .then((response) => {
               const uploadedResimId = response.data.resimId; // Sunucudan yüklenen resim id'si geliyor
               setIlan(prevIlan => ({
@@ -55,7 +55,7 @@ const IlanDuzenle = () => {
         // Silinmesi gereken resimlerin silinmesi
         if (silinecekResimler.length > 0) {
           silinecekResimler.forEach((resimId) => {
-            axios.delete(`http://localhost:3001/ilan-resim/${ilanId}/${resimId}`)
+            axios.delete(`http://localhost:3001/ilan-duzenle-resim-sil/${ilanId}/${resimId}`)
               .then(() => {
                 setIlan((prevIlan) => ({
                   ...prevIlan,

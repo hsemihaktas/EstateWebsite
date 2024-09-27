@@ -154,7 +154,7 @@ app.post('/ilan-ekle', upload.array('resimler', 10), (req, res) => {
 });
 
 //İlan Silme 
-app.delete('/ilanlar/:ilanId', (req, res) => {
+app.delete('/ilan-sil/:ilanId', (req, res) => {
   const ilanId = req.params.ilanId;
 
   // İlanla ilişkili resimleri sil
@@ -181,7 +181,7 @@ app.delete('/ilanlar/:ilanId', (req, res) => {
 });
 
 //İlanı Düzenle
-app.put('/ilanlar/:ilanId', (req, res) => {
+app.put('/ilan-duzenle/:ilanId', (req, res) => {
   const ilanId = req.params.ilanId;
   const { baslik, aciklama, fiyat } = req.body;
 
@@ -202,7 +202,7 @@ app.put('/ilanlar/:ilanId', (req, res) => {
 });
 
 // İlan Düzenleme Sayfasında Resim silme
-app.delete('/ilan-resim/:ilanId/:resimId', (req, res) => {
+app.delete('/ilan-duzenle-resim-sil/:ilanId/:resimId', (req, res) => {
   const ilanId = req.params.ilanId;
   const resimId = req.params.resimId;
 
@@ -220,7 +220,7 @@ app.delete('/ilan-resim/:ilanId/:resimId', (req, res) => {
 });
 
 // İlan Düzenlenleme Sayfasında Çoklu resim yükleme 
-app.post('/ilan-resim-yukle/:ilanId', upload.array('files', 10), (req, res) => {
+app.post('/ilan-duzenle-resim-yukle/:ilanId', upload.array('files', 10), (req, res) => {
   const ilanId = req.params.ilanId;
   const resimBlobs = req.files.map(file => file.buffer); // Tüm resimleri buffer olarak al
 

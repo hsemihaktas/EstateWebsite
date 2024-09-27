@@ -24,7 +24,7 @@ function IlanDetay() {
   const handleIlanSil = () => {
     if (window.confirm('Bu ilanı silmek istediğinizden emin misiniz?')) {
       axios
-        .delete(`http://localhost:3001/ilanlar/${ilanId}`)
+        .delete(`http://localhost:3001/ilan-sil/${ilanId}`)
         .then(() => {
           window.location.href = '/';
         })
