@@ -14,6 +14,7 @@ const IlanDuzenle = () => {
   });
 
   const [yeniResimler, setYeniResimler] = useState([]);
+  const [yeniResimBase64, setYeniResimBase64] = useState([]); // Yeni resimlerin base64 hali
   const [silinecekResimler, setSilinecekResimler] = useState([]);
 
   useEffect(() => {
@@ -39,8 +40,12 @@ const IlanDuzenle = () => {
           const formData = new FormData();
           formData.append('files', resim);
           axios.post(`http://localhost:3001/ilan-resim-yukle/${ilanId}`, formData)
-            .then(() => {
-              // Yükleme başarılı olduğunda işlemleri burada yapabilirsiniz
+            .then((response) => {
+              const uploadedResimId = response.data.resimId; // Sunucudan yüklenen resim id'si geliyor
+              setIlan(prevIlan => ({
+                ...prevIlan,
+                resimIdleri: [...prevIlan.resimIdleri, uploadedResimId] // Yeni resim id'sini ekliyoruz
+              }));
             })
             .catch((error) => {
               console.error('Resim yüklenirken hata oluştu:', error);
@@ -52,7 +57,10 @@ const IlanDuzenle = () => {
           silinecekResimler.forEach((resimId) => {
             axios.delete(`http://localhost:3001/ilan-resim/${ilanId}/${resimId}`)
               .then(() => {
-                setIlan({ ...ilan, resimIdleri: ilan.resimIdleri.filter(id => id !== resimId) });
+                setIlan((prevIlan) => ({
+                  ...prevIlan,
+                  resimIdleri: prevIlan.resimIdleri.filter(id => id !== resimId) // Silinen resim id'sini listeden çıkarıyoruz
+                }));
               })
               .catch((error) => {
                 console.error('Resim silinirken hata oluştu:', error);
@@ -76,8 +84,18 @@ const IlanDuzenle = () => {
   };
 
   const handleResimYukle = (e) => {
-    const resimler = e.target.files;
-    setYeniResimler([...yeniResimler, ...resimler]);
+    const resimler = Array.from(e.target.files);
+    
+    // Yeni resimleri FileReader ile base64'e çeviriyoruz
+    resimler.forEach((resim) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setYeniResimBase64((prev) => [...prev, event.target.result]); // Base64 formatında ekliyoruz
+      };
+      reader.readAsDataURL(resim);
+    });
+
+    setYeniResimler([...yeniResimler, ...resimler]); // Dosyaları kaydediyoruz
   };
 
   return (
@@ -101,6 +119,18 @@ const IlanDuzenle = () => {
               />
             </div>
           ))}
+
+          {/* Yeni yüklenen resimler ekranda gösteriliyor */}
+          {yeniResimBase64.map((resimSrc, index) => (
+            <div key={index} className="relative border border-gray-200 rounded-lg p-2 m-2" style={{ width: '360px', height: '270px', position: 'relative' }}>
+              <img
+                src={resimSrc}
+                alt="Yeni Yüklenen Resim"
+                className="w-full h-full object-contain"
+              />
+            </div>
+          ))}
+
           <div className="relative border border-gray-200 rounded-lg p-2 m-2" style={{ width: '360px', height: '270px', position: 'relative' }}>
             <label htmlFor="resimYukle" className="w-full h-full cursor-pointer hover:bg-gray-100 flex justify-center items-center">
               <input
